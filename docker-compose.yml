@@ -21,14 +21,14 @@ services:
     depends_on:
       - eventbus
       - datastore
-      - sparksimulator
     labels:
       - "traefik.port=5000"
       - "traefik.frontend.rule=PathPrefix: /spark"
     volumes:
       - "./:/app/"
     command: >
-      --device-host=sparksimulator
+      --volatile
+    #   --device-host=sparksimulator
     #   --device-id=3f0025000851353532343835
     #   --volatile
 

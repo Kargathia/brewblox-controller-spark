@@ -240,6 +240,7 @@ class SparkProtocol(asyncio.Protocol):
         self._on_event = on_event
         self._on_data = on_data
         self._buffer = ''
+        self._file = None
 
     @property
     def connected(self) -> Awaitable:
@@ -250,15 +251,21 @@ class SparkProtocol(asyncio.Protocol):
         return self._connection_lost_event.wait()
 
     def connection_made(self, transport):
+        self._file = open('/app/output.txt', 'a+')
+        self._file.write('\n' + '+' * 20 + 'CONNECTED' + '+' * 20 + '\n')
+        LOGGER.info('file open')
         self._connection_made_event.set()
 
     def connection_lost(self, exc):
+        self._file.close()
         self._connection_lost_event.set()
         if exc:
             warnings.warn(f'Protocol connection error: {exc}')
 
     def data_received(self, data):
         self._buffer += data.decode()
+        self._file.write(data.decode())
+        self._file.flush()
 
         # Annotations use < and > as start/end characters
         # Most annotations can be discarded, except for event messages
